@@ -1,0 +1,26 @@
+Bitmap size: 100000
+#operations: 5000
+-----------------------------------
+signedLongs: false, cacheCardinalities: true
+contains - time(ms): 4
+select - time(ms): 35
+rank - time(ms): 7
+mixedAddRank - time(ms): 2852
+-----------------------------------
+signedLongs: false, cacheCardinalities: false
+contains - time(ms): 2
+select - time(ms): 6116
+rank - time(ms): 6695
+mixedAddRank - time(ms): 5771
+-----------------------------------
+signedLongs: true, cacheCardinalities: true
+contains - time(ms): 3
+select - time(ms): 19
+rank - time(ms): 4
+mixedAddRank - time(ms): 3214
+-----------------------------------
+signedLongs: true, cacheCardinalities: false
+contains - time(ms): 3
+select - time(ms): 20674
+rank - time(ms): 16256
+mixedAddRank - time(ms): 13525

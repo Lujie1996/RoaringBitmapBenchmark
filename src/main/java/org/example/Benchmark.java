@@ -25,6 +25,9 @@ public class Benchmark {
 
         startBenchmark(false, true);
         startBenchmark(false, false);
+
+        startBenchmark(true, true);
+        startBenchmark(true, false);
     }
 
 
@@ -54,20 +57,26 @@ public class Benchmark {
         System.out.println("contains - time(ms): " + (endTime-startTime));
 
         startTime = System.currentTimeMillis();
+        select(bitmap);
+        endTime = System.currentTimeMillis();
+        System.out.println("select - time(ms): " + (endTime-startTime));
+
+        startTime = System.currentTimeMillis();
         rank(bitmap);
         endTime = System.currentTimeMillis();
         System.out.println("rank - time(ms): " + (endTime-startTime));
 
         startTime = System.currentTimeMillis();
-        select(bitmap);
+        mixedAddRank(bitmap);
         endTime = System.currentTimeMillis();
-        System.out.println("select - time(ms): " + (endTime-startTime));
+        System.out.println("mixedAddRank - time(ms): " + (endTime-startTime));
     }
 
     private boolean contains(Roaring64NavigableMap bitmap) {
         boolean res = true;
+        long item;
         for (int i = 0; i < NUM_OF_OPERATIONS / 2; i++) {
-            long item = allLongs.get(random.nextInt(allLongs.size()));
+            item = allLongs.get(random.nextInt(allLongs.size()));
             res &= bitmap.contains(item);
             res &= bitmap.contains(ThreadLocalRandom.current().nextLong(UPPER_BOUND));
         }
@@ -76,8 +85,9 @@ public class Benchmark {
 
     private long rank(Roaring64NavigableMap bitmap) {
         long res = 0;
+        long item;
         for (int i = 0; i < NUM_OF_OPERATIONS; i++) {
-            long item = allLongs.get(random.nextInt(allLongs.size()));
+            item = allLongs.get(random.nextInt(allLongs.size()));
             res += bitmap.rankLong(item);
         }
         return res;
@@ -85,9 +95,29 @@ public class Benchmark {
 
     private long select(Roaring64NavigableMap bitmap) {
         long res = 0;
+        long index;
         for (int i = 0; i < NUM_OF_OPERATIONS; i++) {
-            long index = random.nextInt(allLongs.size());
+            index = random.nextInt(allLongs.size());
             res += bitmap.select(index);
+        }
+        return res;
+    }
+
+    private long mixedAddRank(Roaring64NavigableMap bitmap) {
+        long res = 0;
+        long randomLong;
+        long item;
+        for (int i = 0, j = 0; i < NUM_OF_OPERATIONS; i++, j++) {
+            if (j % 10 == 0) {
+                // add
+                randomLong = ThreadLocalRandom.current().nextLong(UPPER_BOUND);
+                bitmap.add(randomLong);
+                allLongs.add(randomLong);
+            } else {
+                // rank
+                item = allLongs.get(random.nextInt(allLongs.size()));
+                res += bitmap.rankLong(item);
+            }
         }
         return res;
     }
